@@ -22,4 +22,4 @@ export async function validateIPN(payload: IPNPayload): Promise<boolean> {
 
   const text = await response.text();
   return text.trim() === "VERIFIED";
-}
+}feat: add IPN payload validator service
