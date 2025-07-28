@@ -1,4 +1,4 @@
-
+Test](https://github.com/<user>/<repo>/actions/workflows/deno.yml/badge.svg)
 # sponsor-ipn-discord
 
 Webhook handler that listens for PayPal IPNs and assigns Discord sponsor roles with artifact logs.
