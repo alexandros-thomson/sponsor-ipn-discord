@@ -1,0 +1,11 @@
+/deno-dir/
+/deps.ts
+*.log
+.env
+.DS_Store
+.idea/
+.vscode/
+/dist/
+/build/
+*.wasm
+node_modules/
