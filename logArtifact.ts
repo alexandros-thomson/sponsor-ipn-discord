@@ -36,3 +36,4 @@ import { appendToLedger }     from "./appendToLedger.ts";
 // …inside logArtifact():
 await sendToLogChannel(embed);
 await appendToLedger(discordId, tier, payload);
+chore: auto-invoke log dispatch and ledger append
