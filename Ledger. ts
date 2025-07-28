@@ -23,3 +23,32 @@ export async function appendToLedger(discordId: string, tier: string, payload: I
     console.error("📛 Ledger update failed:", err);
   }
 }
+import { IPNPayload } from "./types.ts";
+import { writeFileSync, readFileSync } from "fs";
+import path from "path";
+
+const ledgerPath = path.resolve("vault", "sponsor-ledger.json");
+
+export async function appendToLedger(
+  discordId: string,
+  tier: string,
+  payload: IPNPayload,
+) {
+  try {
+    const entry = {
+      discordId,
+      tier,
+      amount: payload.mc_gross,
+      txn_id: payload.txn_id,
+      email: payload.payer_email,
+      timestamp: new Date().toISOString(),
+    };
+
+    const existing = JSON.parse(readFileSync(ledgerPath, "utf-8"));
+    existing.push(entry);
+    writeFileSync(ledgerPath, JSON.stringify(existing, null, 2));
+    console.log(`📖 Ledger updated for ${discordId}`);
+  } catch (err) {
+    console.error("📛 Ledger update failed:", err);
+  }
+}
