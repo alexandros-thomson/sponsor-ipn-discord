@@ -1,0 +1,2 @@
+await sendToLogChannel(embed);
+await appendToLedger(discordId, tier, payload); // ← Let’s define this next
