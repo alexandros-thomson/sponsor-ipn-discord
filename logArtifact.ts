@@ -30,3 +30,9 @@ export async function sendToLogChannel(embed: Embed) {
     console.error("Failed to dispatch artifact log:", err);
   }
 }
+import { sendToLogChannel } from "./sendToLogChannel.ts";
+import { appendToLedger }     from "./appendToLedger.ts";
+
+// …inside logArtifact():
+await sendToLogChannel(embed);
+await appendToLedger(discordId, tier, payload);
