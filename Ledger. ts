@@ -52,3 +52,19 @@ export async function appendToLedger(
     console.error("📛 Ledger update failed:", err);
   }
 }
+const express = require('express')
+const bodyParser = require('body-parser')
+const { handleSponsorshipCreated } = require('./webhooks/sponsor-handler')
+const app = express()
+
+app.use(bodyParser.json())
+
+app.post('/github-webhook', async (req, res) => {
+  const event = req.headers['x-github-event']
+  if (event === 'sponsorship' && req.body.action === 'created') {
+    await handleSponsorshipCreated(req.body.sponsorship)
+  }
+  res.sendStatus(200)
+})
+
+app.listen(process.env.PORT || 3000)
