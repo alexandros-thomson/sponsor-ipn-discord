@@ -1,0 +1,55 @@
+// Dependencies
+const fs = require('fs').promises
+const path = require('path')
+const { MessageEmbed } = require('discord.js')
+
+// Constants (set via environment or replace with your values)
+const THREADS_DIR = path.join(__dirname, '..', '..', 'threads')
+const DISCORD_CHANNEL_ID = process.env.SPONSOR_CHANNEL_ID
+
+/**
+ * Handle a GitHub sponsorship.created event
+ * @param {object} sponsorship GitHub webhook payload .sponsorship object
+ */
+async function handleSponsorshipCreated(sponsorship) {
+  // Extract metadata
+  const sponsorLogin = sponsorship.sponsor.login
+  const tierName    = sponsorship.tier.name
+  const ts          = new Date(sponsorship.created_at).toISOString()
+  const filename    = `relic-drop--${sponsorLogin}.json`
+  const filePath    = path.join(THREADS_DIR, filename)
+
+  // Build JSON metadata
+  const metadata = {
+    sponsor: sponsorLogin,
+    sponsor_id: sponsorship.sponsor.id,
+    tier: tierName,
+    timestamp: ts,
+    sponsorship_id: sponsorship.id,
+    thread_id: null  // fill in if you reply back to the thread
+  }
+
+  // Write JSON file to /threads
+  await fs.mkdir(THREADS_DIR, { recursive: true })
+  await fs.writeFile(filePath, JSON.stringify(metadata, null, 2))
+
+  // Create a Discord embed
+  const embed = new MessageEmbed()
+    .setTitle('New Sponsor Relic Dropped')
+    .addField('Sponsor', sponsorLogin, true)
+    .addField('Tier', tierName, true)
+    .addField('Time', ts, false)
+    .setColor('#E7A900')
+    .setFooter('Audit-safe relic emission')
+
+  // Post embed into your sponsor-ops channel
+  const channel = global.client.channels.cache.get(DISCORD_CHANNEL_ID)
+  if (channel) {
+    const message = await channel.send({ embeds: [embed] })
+    // Optionally update JSON with the Discord message ID
+    metadata.thread_id = message.id
+    await fs.writeFile(filePath, JSON.stringify(metadata, null, 2))
+  }
+}
+
+module.exports = { handleSponsorshipCreated }
