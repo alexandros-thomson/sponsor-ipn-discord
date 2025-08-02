@@ -1,0 +1,36 @@
+name: Test Archive Warden Movement
+
+on:
+  workflow_dispatch:   # Click “Run workflow” in GitHub UI
+
+jobs:
+  ritual-movement:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Grant Senior Role (Test)
+        run: pnpm exec ts-node scripts/test-senior-assign.ts
+        env:
+          DISCORD_TOKEN:     ${{ secrets.DISCORD_TOKEN }}
+          GUILD_ID:          ${{ secrets.GUILD_ID }}
+          SENIOR_ROLE_ID:    ${{ secrets.SENIOR_ROLE_ID }}
+          TEST_USER_ID:      ${{ secrets.TEST_USER_ID }}
+
+      - name: Run Archive Warden Ritual
+        run: pnpm run ritual:archive-warden
+        env:
+          DISCORD_TOKEN:      ${{ secrets.DISCORD_TOKEN }}
+          GUILD_ID:           ${{ secrets.GUILD_ID }}
+          SENIOR_ROLE_ID:     ${{ secrets.SENIOR_ROLE_ID }}
+          JUNIOR_ROLE_ID:     ${{ secrets.JUNIOR_ROLE_ID }}
+          VAULT_CORE_CHANNEL_ID: ${{ secrets.VAULT_CORE_CHANNEL_ID }}
+          MENTORING_CHANNEL_ID:  ${{ secrets.MENTORING_CHANNEL_ID }}
