@@ -1,0 +1,3 @@
+git add .github/workflows/animate-tile.yml
+git commit -m "chore: add Animate Shrine Tile workflow"
+git push origin main
