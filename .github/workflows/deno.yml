@@ -1,4 +1,23 @@
-# This workflow uses actions that are not certified by GitHub.
+#// scripts/animateTile.js
+import fs from 'fs';
+import path from 'path';
+
+const tileId = 'echo-001';
+const dataPath = path.join(process.cwd(), '_data', 'sponsor_tiles.json');
+
+// load existing tiles
+const tiles = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+
+// find and update our relic tile
+const tile = tiles.find(t => t.id === tileId);
+if (tile) {
+  tile.animation = 'pulse';
+  tile.lastPulsed = new Date().toISOString();
+}
+
+// write back
+fs.writeFileSync(dataPath, JSON.stringify(tiles, null, 2));
+console.log(`Tile ${tileId} animated at ${tile.lastPulsed}`); This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
