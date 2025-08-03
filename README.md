@@ -1,5 +1,49 @@
 # 🛠️ Kypria Sponsor Pipeline
+// sponsor-handler.js — Shrine Echo Listener 🕯️
+const express = require('express');
+const bodyParser = require('body-parser');
+const axios = require('axios');
+const fs = require('fs');
+const { spawn } = require('child_process');
 
+const router = express.Router();
+router.use(bodyParser.urlencoded({ extended: false }));
+
+router.post('/paypal-ipn', async (req, res) => {
+  const payload = req.body;
+
+  try {
+    // Step 1: Validate IPN with PayPal 🔒
+    const verifyRes = await axios.post(
+      'https://ipnpb.paypal.com/cgi-bin/webscr',
+      new URLSearchParams({ cmd: '_notify-validate', ...payload })
+    );
+
+    if (verifyRes.data !== 'VERIFIED') {
+      return res.status(403).send('IPN not verified.');
+    }
+
+    // Step 2: Log sponsor to scroll 📜
+    const logEntry = `🕯️ Sponsor Pledge Received:
+- TXN_ID: ${payload.txn_id}
+- Archetype: ${payload.custom}
+- Amount: $${payload.mc_gross}
+- Email: ${payload.payer_email}
+- Timestamp: ${new Date().toISOString()}\n\n`;
+
+    fs.appendFileSync('sponsor-scroll.md', logEntry);
+
+    // Step 3: Trigger Discord shrine echo 🎇
+    spawn('node', ['discord-ping.js', payload.custom, payload.txn_id]);
+
+    res.send('Sponsor logged and shrine awakened.');
+  } catch (err) {
+    console.error('🔴 Error handling IPN:', err);
+    res.status(500).send('Shrine glitch detected.');
+  }
+});
+
+module.exports = router;
 A mythic automation engine that grants Discord roles, drops digital artifacts, and inscribes each sponsor’s pledge into the eternal ledger—all powered by PayPal and Deno.
 
 ---
